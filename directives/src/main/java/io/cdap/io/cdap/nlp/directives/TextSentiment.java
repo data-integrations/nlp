@@ -14,13 +14,13 @@
  * the License.
  */
 
-package io.cdap.directives;
+package io.cdap.io.cdap.nlp.directives;
 
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
-import io.cdap.directives.internal.LanguageServiceProvider;
-import io.cdap.directives.internal.SentimentService;
+import io.cdap.io.cdap.nlp.directives.internal.LanguageServiceProvider;
+import io.cdap.io.cdap.nlp.directives.internal.SentimentService;
 import io.cdap.wrangler.api.Arguments;
 import io.cdap.wrangler.api.Directive;
 import io.cdap.wrangler.api.DirectiveExecutionException;
@@ -122,11 +122,9 @@ public class TextSentiment implements Directive {
       }
       Object value = row.getValue(idx);
       if (value instanceof String) {
-        Row result = service.getResult(column, (String) row.getValue(idx));
-        List<Pair<String, Object>> fields = result.getFields();
-        for (Pair<String, Object> field : fields) {
-          row.add(field.getFirst(), field.getSecond());
-        }
+        Pair<Float, Float> result = service.getResult((String) row.getValue(idx));
+        row.add(String.format("%s_magnitude", column.value()), result.getFirst());
+        row.add(String.format("%s_score", column.value()), result.getSecond());
       } else {
         throw new DirectiveExecutionException(
           String.format("Sentiment analysis using this can only be applied on a text field")

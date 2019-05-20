@@ -14,12 +14,16 @@
  * the License.
  */
 
-package io.cdap.directives.internal;
+package io.cdap.io.cdap.nlp.directives;
+
+import javax.annotation.Nullable;
 
 /**
- * Exception thrown when there is issue with DLP service.
+ * This class <code>LanguageService</code> defines a Language service abstraction.
+ * @param <I> Input type.
+ * @param <O> Output type.
  */
-public class LanguageServiceException extends Exception {
-
+public interface LanguageService<I, O> {
+  @Nullable
+  I getResult(O data);
 }
-

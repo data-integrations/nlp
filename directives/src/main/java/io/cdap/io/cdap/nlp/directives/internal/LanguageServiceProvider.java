@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.directives.internal;
+package io.cdap.io.cdap.nlp.directives.internal;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.auth.Credentials;
@@ -30,7 +30,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
- * This class <code>DlpServiceProvider</code> provides a singleton instance of <code>DlpServiceClient</code>.
+ * This class <code>LanguageServiceProvider</code> provides a singleton instance of <code>LanguageServiceClient</code>.
+ *
+ * <p>
+ *
+ * </p>
  */
 public final class LanguageServiceProvider {
   private static final Logger LOG = LoggerFactory.getLogger(LanguageServiceProvider.class);

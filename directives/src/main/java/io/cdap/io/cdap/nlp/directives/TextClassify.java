@@ -14,13 +14,13 @@
  * the License.
  */
 
-package io.cdap.directives;
+package io.cdap.io.cdap.nlp.directives;
 
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
-import io.cdap.directives.internal.LanguageServiceProvider;
-import io.cdap.directives.internal.TextClassificationService;
+import io.cdap.io.cdap.nlp.directives.internal.LanguageServiceProvider;
+import io.cdap.io.cdap.nlp.directives.internal.TextClassificationService;
 import io.cdap.wrangler.api.Arguments;
 import io.cdap.wrangler.api.Directive;
 import io.cdap.wrangler.api.DirectiveExecutionException;
@@ -123,7 +123,7 @@ public class TextClassify implements Directive {
       }
       Object value = row.getValue(idx);
       if (value instanceof String) {
-        List<Pair<String, Float>> texts = service.getResult(column, (String) row.getValue(idx));
+        List<Pair<String, Float>> texts = service.getResult((String) row.getValue(idx));
         for (Pair<String, Float> text : texts) {
           Row result = new Row(row);
           row.add(String.format("%s_category", text.getFirst()), text.getFirst());

@@ -14,18 +14,12 @@
  * the License.
  */
 
-package io.cdap.directives;
-
-import io.cdap.wrangler.api.parser.ColumnName;
-
-import javax.annotation.Nullable;
+package io.cdap.io.cdap.nlp.directives.internal;
 
 /**
- * This class <code>LanguageService</code> defines a Language service abstraction.
- * @param <I> Input type.
- * @param <O> Output type.
+ * Exception thrown when there is issue with Language service.
  */
-public interface LanguageService<I, O> {
-  @Nullable
-  I getResult(ColumnName name, O data);
+public class LanguageServiceException extends Exception {
+
 }
+
