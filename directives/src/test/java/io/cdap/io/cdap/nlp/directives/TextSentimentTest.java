@@ -1,7 +1,8 @@
 package io.cdap.io.cdap.nlp.directives;
 
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import io.cdap.io.cdap.nlp.directives.internal.SentimentService;
+import io.cdap.nlp.directives.TextSentiment;
+import io.cdap.nlp.directives.internal.SentimentService;
 import io.cdap.wrangler.api.Pair;
 import io.cdap.wrangler.api.RecipePipeline;
 import io.cdap.wrangler.api.Row;
@@ -9,6 +10,7 @@ import io.cdap.wrangler.test.TestingRig;
 import io.cdap.wrangler.test.api.TestRecipe;
 import io.cdap.wrangler.test.api.TestRows;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import static org.mockito.Mockito.when;
  */
 public class TextSentimentTest {
 
+  @Ignore
   @Test
   public void testBasic() throws Exception {
     TestRows rows = new TestRows();

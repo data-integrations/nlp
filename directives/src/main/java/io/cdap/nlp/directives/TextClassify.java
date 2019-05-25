@@ -14,13 +14,13 @@
  * the License.
  */
 
-package io.cdap.io.cdap.nlp.directives;
+package io.cdap.nlp.directives;
 
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
-import io.cdap.io.cdap.nlp.directives.internal.LanguageServiceProvider;
-import io.cdap.io.cdap.nlp.directives.internal.SentimentService;
+import io.cdap.nlp.directives.internal.LanguageServiceProvider;
+import io.cdap.nlp.directives.internal.TextClassificationService;
 import io.cdap.wrangler.api.Arguments;
 import io.cdap.wrangler.api.Directive;
 import io.cdap.wrangler.api.DirectiveExecutionException;
@@ -40,6 +40,7 @@ import io.cdap.wrangler.api.parser.UsageDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,17 +54,17 @@ import java.util.List;
  * @see <a href="Cloud DLP">https://cloud.google.com/dlp/</a>
  */
 @Plugin(type = Directive.TYPE)
-@Name(TextSentiment.NAME)
-@Categories(categories = { "nlp", "sentiment"})
-@Description("Analyse sentiment of text column")
-public class TextSentiment implements Directive {
-  private static final Logger LOG = LoggerFactory.getLogger(TextSentiment.class);
-  public static final String NAME = "text-sentiment";
+@Name(TextClassify.NAME)
+@Categories(categories = { "nlp", "classify"})
+@Description("Detects categories in text")
+public class TextClassify implements Directive {
+  private static final Logger LOG = LoggerFactory.getLogger(TextClassify.class);
+  public static final String NAME = "text-categories";
   private ColumnName column;
   private Identifier projectId;
   private Text saPath;
-  private String lang;
-  private SentimentService service;
+  private Identifier lang;
+  private TextClassificationService service;
 
   /**
    * Returns a <code>UsageDefinition</code> that defines the argument this directive expects.
@@ -77,7 +78,6 @@ public class TextSentiment implements Directive {
   public UsageDefinition define() {
     UsageDefinition.Builder builder = UsageDefinition.builder(NAME);
     builder.define("column", TokenType.COLUMN_NAME);
-    builder.define("lang", TokenType.IDENTIFIER, Optional.TRUE);
     builder.define("project-id", TokenType.IDENTIFIER, Optional.TRUE);
     builder.define("service-account-file-path", TokenType.TEXT, Optional.TRUE);
     return builder.build();
@@ -105,8 +105,8 @@ public class TextSentiment implements Directive {
         projectId != null ? projectId.value() : null,
         saPath != null ? saPath.value() : null
       );
-      service = new SentimentService(provider.getClient(), provider.getProject());
-      service.initialize(lang);
+      service = new TextClassificationService(provider.getClient(), provider.getProject());
+      service.initialize(lang.value());
     } catch (Exception e) {
       throw new DirectiveParseException(e.getMessage());
     }
@@ -115,6 +115,7 @@ public class TextSentiment implements Directive {
   @Override
   public List<Row> execute(List<Row> rows, ExecutorContext ctx)
     throws DirectiveExecutionException, ErrorRowException, ReportErrorAndProceed {
+    List<Row> results = new ArrayList<>();
     for (Row row : rows) {
       int idx = row.find(column.value());
       if (idx == -1) {
@@ -122,16 +123,20 @@ public class TextSentiment implements Directive {
       }
       Object value = row.getValue(idx);
       if (value instanceof String) {
-        Pair<Float, Float> result = service.getResult((String) row.getValue(idx));
-        row.add(String.format("%s_magnitude", column.value()), result.getFirst());
-        row.add(String.format("%s_score", column.value()), result.getSecond());
+        List<Pair<String, Float>> texts = service.getResult((String) row.getValue(idx));
+        for (Pair<String, Float> text : texts) {
+          Row result = new Row(row);
+          row.add(String.format("%s_category", text.getFirst()), text.getFirst());
+          row.add(String.format("%s_confidence", text.getSecond()), text.getSecond());
+          results.add(result);
+        }
       } else {
         throw new DirectiveExecutionException(
-          String.format("Sentiment analysis using this can only be applied on a text field")
+          String.format("Text classification can only be applied on a text field")
         );
       }
     }
-    return rows;
+    return results;
   }
 
   @Override

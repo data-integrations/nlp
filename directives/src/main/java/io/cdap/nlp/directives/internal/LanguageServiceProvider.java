@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.io.cdap.nlp.directives.internal;
+package io.cdap.nlp.directives.internal;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.auth.Credentials;

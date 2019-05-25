@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.io.cdap.nlp.directives.internal;
+package io.cdap.nlp.directives.internal;
 
 /**
  * Exception thrown when there is issue with Language service.

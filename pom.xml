@@ -28,8 +28,8 @@
 
   <name>Cloud NLP Directives</name>
   <packaging>pom</packaging>
-  <description>A collection of Cloud NLP directives</description>
-  <url>https://github.com/data-integrations/nlp-directives</url>
+  <description>A collection of Cloud NLP io.cdap.nlp.directives</description>
+  <url>https://github.com/data-integrations/nlp-io.cdap.nlp.directives</url>
 
   <licenses>
     <license>
@@ -50,9 +50,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/data-integrations/nlp-directives.git</connection>
-    <developerConnection>scm:git:git@github.com:data-integrations/nlp-directives.git</developerConnection>
-    <url>https://github.com/data-integrations/nlp-directives.git</url>
+    <connection>scm:git:https://github.com/data-integrations/nlp-io.cdap.nlp.directives.git</connection>
+    <developerConnection>scm:git:git@github.com:data-integrations/nlp-io.cdap.nlp.directives.git</developerConnection>
+    <url>https://github.com/data-integrations/nlp-io.cdap.nlp.directives.git</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -64,10 +64,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <main.basedir>${project.basedir}</main.basedir>
     <cdap.version>6.0.0-SNAPSHOT</cdap.version>
-    <wrangler.version>4.0.0</wrangler.version>
+    <wrangler.version>4.1.0-SNAPSHOT</wrangler.version>
     <commons.codec.version>1.10</commons.codec.version>
     <junit.version>4.12</junit.version>
-    <language.version>1.62.0</language.version>
+    <language.version>1.75.0</language.version>
     <mockito.version>2.27.0</mockito.version>
   </properties>
 
@@ -172,54 +172,6 @@
             <include>**/*TestCase.java</include>
           </includes>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>3.5.1</version>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Embed-Dependency>*;inline=false;scope=compile</Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
-            <Embed-Directory>lib</Embed-Directory>
-            <!--Only @Plugin classes in the export packages will be included as plugin-->
-            <_exportcontents>
-              io.cdap.directives.*;
-              com.google.api.*;
-              com.google.cloud.*;
-            </_exportcontents>
-          </instructions>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>bundle</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>io.cdap</groupId>
-        <artifactId>cdap-maven-plugin</artifactId>
-        <version>1.1.0</version>
-        <configuration>
-          <cdapArtifacts>
-            <parent>system:wrangler-transform[4.0.0,5.0.0)</parent>
-          </cdapArtifacts>
-        </configuration>
-        <executions>
-          <execution>
-            <id>create-artifact-config</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>create-plugin-json</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

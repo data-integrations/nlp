@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.io.cdap.nlp.directives;
+package io.cdap.nlp.directives;
 
 import javax.annotation.Nullable;
 

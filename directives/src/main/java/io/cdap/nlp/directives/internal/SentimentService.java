@@ -14,29 +14,26 @@
  * the License.
  */
 
-package io.cdap.io.cdap.nlp.directives.internal;
+package io.cdap.nlp.directives.internal;
 
-import com.google.cloud.language.v1beta2.ClassificationCategory;
-import com.google.cloud.language.v1beta2.ClassifyTextRequest;
-import com.google.cloud.language.v1beta2.ClassifyTextResponse;
+import com.google.cloud.language.v1beta2.AnalyzeSentimentResponse;
 import com.google.cloud.language.v1beta2.Document;
 import com.google.cloud.language.v1beta2.LanguageServiceClient;
-import io.cdap.io.cdap.nlp.directives.LanguageService;
+import com.google.cloud.language.v1beta2.Sentiment;
+import io.cdap.nlp.directives.LanguageService;
 import io.cdap.wrangler.api.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nullable;
 
 /**
  *
  */
-public class TextClassificationService implements LanguageService<List<Pair<String, Float>>, String> {
+public class SentimentService implements LanguageService<Pair<Float, Float>, String> {
   private final LanguageServiceClient client;
   private String project;
   private String lang;
 
-  public TextClassificationService(LanguageServiceClient client, String project) {
+  public SentimentService(LanguageServiceClient client, String project) {
     this.client = client;
     this.project = project;
   }
@@ -47,8 +44,7 @@ public class TextClassificationService implements LanguageService<List<Pair<Stri
   }
 
   @Override
-  @Nullable
-  public List<Pair<String, Float>> getResult(String text) {
+  public Pair<Float, Float> getResult(String text) {
     Document.Builder docBuilder = Document.newBuilder();
     if (lang != null) {
         docBuilder.setLanguage(lang);
@@ -56,18 +52,9 @@ public class TextClassificationService implements LanguageService<List<Pair<Stri
     Document doc = docBuilder.setContent(text)
       .setType(Document.Type.PLAIN_TEXT)
       .build();
-
-    ClassifyTextRequest request = ClassifyTextRequest.newBuilder()
-      .setDocument(doc)
-      .build();
-    
-    // detect categories in the given text
-    List<Pair<String, Float>> results = new ArrayList<>();
-    ClassifyTextResponse response = client.classifyText(request);
-    for (ClassificationCategory category : response.getCategoriesList()) {
-      results.add(new Pair<>(category.getName(), category.getConfidence()));
-    }
-    return results;
+    AnalyzeSentimentResponse response = client.analyzeSentiment(doc);
+    Sentiment sentiment = response.getDocumentSentiment();
+    return new Pair<>(sentiment.getMagnitude(), sentiment.getScore());
   }
 }
 
