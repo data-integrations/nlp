@@ -18,17 +18,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.cdap.nlp</groupId>
-  <artifactId>nlp-plugins</artifactId>
+  <artifactId>nlp</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <modules>
-    <module>directives</module>
-    <module>plugins</module>
+    <module>nlp-directives</module>
+    <module>nlp-plugins</module>
+    <module>nlp-common</module>
   </modules>
 
-  <name>Cloud NLP Directives</name>
+  <name>Cloud NLP</name>
   <packaging>pom</packaging>
-  <description>A collection of Cloud NLP io.cdap.nlp.directives</description>
+  <description>A collection of Cloud NLP io.cdap.nlp.directive</description>
   <url>https://github.com/data-integrations/nlp-io.cdap.nlp.directives</url>
 
   <licenses>

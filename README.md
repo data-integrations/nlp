@@ -4,7 +4,7 @@
 
 # Introduction
 
-CDAP provides extensive support for user defined io.cdap.nlp.directives (UDDs) as a way to specify custom processing for DataPrep in CDAP. CDAP UDDs can currently be implemented in Java.
+CDAP provides extensive support for user defined io.cdap.nlp.directive (UDDs) as a way to specify custom processing for DataPrep in CDAP. CDAP UDDs can currently be implemented in Java.
 
 CDAP provides the most extensive support for Java functions. Java functions are also more efficient because they are implemented in the same language as CDAP and DataPrep and, also because additional interfaces and integrations with other CDAP subsystems are supported.
 
