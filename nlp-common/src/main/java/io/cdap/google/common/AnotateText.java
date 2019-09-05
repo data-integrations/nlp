@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -22,8 +22,6 @@ import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
 import com.google.protobuf.MessageOrBuilder;
 
-import java.io.IOException;
-
 /**
  * A directive that provides all the features that
  * nlp-analyze-entities, nlp-analyze-entity-sentiment, nlp-analyze-sentiment,
@@ -31,8 +29,8 @@ import java.io.IOException;
  */
 public class AnotateText extends NLPMethodExecutor {
 
-  public AnotateText(String authenticationFile, String languageCode, EncodingType encoding) throws IOException {
-    super(authenticationFile, languageCode, encoding);
+  public AnotateText(String languageCode, EncodingType encoding, LanguageServiceClient language) {
+    super(languageCode, encoding, language);
   }
 
   @Override

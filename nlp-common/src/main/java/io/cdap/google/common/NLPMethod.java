@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -16,16 +16,58 @@
 
 package io.cdap.google.common;
 
+import com.google.cloud.language.v1.EncodingType;
+
 /**
  * Represents a Google NLP method to run.
  */
 public enum NLPMethod {
-  ANALYZE_ENTITIES("Entity Analysis"),
-  ANALYZE_ENTITY_SENTIMENT("Entity Sentiment Analysis"),
-  ANALYZE_SENTIMENT("Sentiment Analysis"),
-  ANALYZE_SYNTAX("Syntax Analysis"),
-  ANOTATE_TEXT("ALL (Anotate text)"),
-  CLASSIFY_CONTENT("Text Classification");
+  ANALYZE_ENTITIES("Entity Analysis") {
+    @Override
+    public NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                            EncodingType encoding) {
+      return new AnalyzeEntities(languageCode, encoding,
+                                 NLPMethodExecutor.createLanguageServiceClient(serviceFilePath));
+    }
+  },
+  ANALYZE_ENTITY_SENTIMENT("Entity Sentiment Analysis") {
+    @Override
+    public NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                            EncodingType encoding) {
+      return new AnalyzeEntitySentiment(languageCode, encoding,
+                                        NLPMethodExecutor.createLanguageServiceClient(serviceFilePath));
+    }
+  },
+  ANALYZE_SENTIMENT("Sentiment Analysis") {
+    @Override
+    public NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                            EncodingType encoding) {
+      return new AnalyzeSentiment(languageCode, encoding,
+                                  NLPMethodExecutor.createLanguageServiceClient(serviceFilePath));
+    }
+  },
+  ANALYZE_SYNTAX("Syntax Analysis") {
+    @Override
+    public NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                            EncodingType encoding) {
+      return new AnalyzeSyntax(languageCode, encoding, NLPMethodExecutor.createLanguageServiceClient(serviceFilePath));
+    }
+  },
+  ANOTATE_TEXT("ALL (Anotate text)") {
+    @Override
+    public NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                            EncodingType encoding) {
+      return new AnotateText(languageCode, encoding, NLPMethodExecutor.createLanguageServiceClient(serviceFilePath));
+    }
+  },
+  CLASSIFY_CONTENT("Text Classification") {
+    @Override
+    public NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                            EncodingType encoding) {
+      return new ClassifyContent(languageCode, encoding,
+                                 NLPMethodExecutor.createLanguageServiceClient(serviceFilePath));
+    }
+  };
 
   private final String value;
 
@@ -36,4 +78,7 @@ public enum NLPMethod {
   public String getValue() {
     return value;
   }
+
+  public abstract NLPMethodExecutor createExecutor(String serviceFilePath, String languageCode,
+                                                   EncodingType encoding);
 }

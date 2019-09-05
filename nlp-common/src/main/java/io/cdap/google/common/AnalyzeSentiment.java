@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -22,8 +22,6 @@ import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
 import com.google.protobuf.MessageOrBuilder;
 
-import java.io.IOException;
-
 /**
  * Provides the prevailing emotional opinion within a provided text. The API returns two values: The "score" describes
  * the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
@@ -31,8 +29,9 @@ import java.io.IOException;
  * The "magnitude" measures the strength of the emotion.
  */
 public class AnalyzeSentiment extends NLPMethodExecutor {
-  public AnalyzeSentiment(String authenticationFile, String languageCode, EncodingType encoding) throws IOException {
-    super(authenticationFile, languageCode, encoding);
+
+  public AnalyzeSentiment(String languageCode, EncodingType encoding, LanguageServiceClient language) {
+    super(languageCode, encoding, language);
   }
 
   @Override

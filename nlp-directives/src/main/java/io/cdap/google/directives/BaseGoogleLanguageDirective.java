@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -17,10 +17,8 @@
 package io.cdap.google.directives;
 
 import com.google.cloud.language.v1.EncodingType;
-import com.google.common.base.Throwables;
 import io.cdap.google.common.NLPMethod;
 import io.cdap.google.common.NLPMethodExecutor;
-import io.cdap.google.common.NLPMethodExecutorFactory;
 import io.cdap.wrangler.api.Arguments;
 import io.cdap.wrangler.api.DirectiveExecutionException;
 import io.cdap.wrangler.api.DirectiveParseException;
@@ -31,12 +29,7 @@ import io.cdap.wrangler.api.parser.ColumnName;
 import io.cdap.wrangler.api.parser.Text;
 import io.cdap.wrangler.api.parser.TokenType;
 import io.cdap.wrangler.api.parser.UsageDefinition;
-import io.cdap.wrangler.i18n.Messages;
-import io.cdap.wrangler.i18n.MessagesFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -44,9 +37,6 @@ import java.util.List;
  * Getting the json response from Google NLP API.
  */
 public abstract class BaseGoogleLanguageDirective {
-  private static final Logger LOG = LoggerFactory.getLogger(AnalyzeSyntax.class);
-  private static final Messages MSG = MessagesFactory.getMessages();
-
   protected EncodingType encoding = EncodingType.UTF8;
   private ColumnName source;
   private ColumnName destination;
@@ -105,12 +95,12 @@ public abstract class BaseGoogleLanguageDirective {
   }
 
   public List<Row> execute(List<Row> rows, ExecutorContext context) throws DirectiveExecutionException {
-    try (NLPMethodExecutor nlpMethodExecutor = NLPMethodExecutorFactory.createInstance(
-      getNLPMethod(), serviceFilePath, languageCode, encoding)) {
+    try (NLPMethodExecutor nlpMethodExecutor = getNLPMethod().createExecutor(serviceFilePath, languageCode, encoding)) {
       for (Row row : rows) {
         int sidx = row.find(source.value());
         if (sidx == -1) {
-          throw new DirectiveExecutionException(MSG.get("column.not.found", toString(), source.value()));
+          throw new DirectiveExecutionException(String.format(
+            "Error encountered while executing '%s' : Column '%s' not found", getName(), source.value()));
         }
 
         String text = (String) row.getValue(sidx);
@@ -118,8 +108,6 @@ public abstract class BaseGoogleLanguageDirective {
         row.addOrSet(destination.value(), resultJson);
       }
       return rows;
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -36,26 +36,12 @@ import java.io.IOException;
 public abstract class NLPMethodExecutor implements Closeable {
   private final String languageCode;
   private final LanguageServiceClient language;
-
   protected final EncodingType encoding;
 
-  public NLPMethodExecutor(String serviceFilePath, String languageCode, EncodingType encoding) throws IOException {
+  public NLPMethodExecutor(String languageCode, EncodingType encoding, LanguageServiceClient language) {
     this.languageCode = languageCode;
     this.encoding = encoding;
-
-    LanguageServiceSettings.Builder languageServiceSettingsBuilder = LanguageServiceSettings.newBuilder();
-    if (serviceFilePath != null) {
-      try {
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(serviceFilePath));
-        languageServiceSettingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
-      } catch (IOException e) {
-        throw new IllegalArgumentException(
-          String.format("Cannot read credentials from service account key file '%s'",
-                        serviceFilePath), e);
-      }
-    }
-
-    language = LanguageServiceClient.create(languageServiceSettingsBuilder.build());
+    this.language = language;
   }
 
   public String execute(String text) {
@@ -84,4 +70,20 @@ public abstract class NLPMethodExecutor implements Closeable {
   }
 
   protected abstract MessageOrBuilder executeRequest(LanguageServiceClient language, Document document);
+
+  public static LanguageServiceClient createLanguageServiceClient(String serviceFilePath) {
+    LanguageServiceSettings.Builder languageServiceSettingsBuilder = LanguageServiceSettings.newBuilder();
+    try {
+      if (serviceFilePath != null) {
+
+          GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(serviceFilePath));
+          languageServiceSettingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+      }
+      return LanguageServiceClient.create(languageServiceSettingsBuilder.build());
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+        String.format("Cannot read credentials from service account key file '%s' or create a language client",
+                      serviceFilePath), e);
+    }
+  }
 }

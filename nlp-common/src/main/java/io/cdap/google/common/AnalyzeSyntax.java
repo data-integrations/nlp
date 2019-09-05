@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -22,15 +22,14 @@ import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
 import com.google.protobuf.MessageOrBuilder;
 
-import java.io.IOException;
-
 /**
  * For a given text, Google’s syntax analysis will return a breakdown of all words with a rich set of
  * linguistic information for each token
  */
 public class AnalyzeSyntax extends NLPMethodExecutor {
-  public AnalyzeSyntax(String authenticationFile, String languageCode, EncodingType encoding) throws IOException {
-    super(authenticationFile, languageCode, encoding);
+
+  public AnalyzeSyntax(String languageCode, EncodingType encoding, LanguageServiceClient language) {
+    super(languageCode, encoding, language);
   }
 
   @Override
