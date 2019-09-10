@@ -22,18 +22,32 @@ import com.google.cloud.language.v1.Document;
 import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
 import com.google.cloud.language.v1.LanguageServiceSettings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
+import io.cdap.cdap.api.data.format.StructuredRecord;
 
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract class that executes a method of Google Language API.
  */
 public abstract class NLPMethodExecutor implements Closeable {
+  protected static final JsonParser PARSER = new JsonParser();
+  // metadata is dynamic and should be map<string,string>. Do not flatten it.
+  protected static final String NOT_FLATTENED_FIELD = "metadata";
+
   private final String languageCode;
   private final LanguageServiceClient language;
   protected final EncodingType encoding;
@@ -62,6 +76,10 @@ public abstract class NLPMethodExecutor implements Closeable {
     }
   }
 
+  public StructuredRecord executeAndReturnStructuredRecord(String text) {
+    return getRecordFromJson(execute(text));
+  }
+
   @Override
   public void close() {
     if (language != null) {
@@ -69,13 +87,60 @@ public abstract class NLPMethodExecutor implements Closeable {
     }
   }
 
+  protected List<String> jsonArrayToList(JsonArray jsonArray) {
+    List<String> result = new ArrayList<>();
+    for (int i = 0; i < jsonArray.size(); i++) {
+      result.add(jsonArray.get(i).getAsJsonObject().toString());
+    }
+    return result;
+  }
+
+  protected abstract StructuredRecord getRecordFromJson(String json);
   protected abstract MessageOrBuilder executeRequest(LanguageServiceClient language, Document document);
+
+  protected static List<Map<String, Object>> flattenJsonObjects(JsonArray jsonArray) {
+    List<Map<String, Object>> results = new ArrayList<>();
+    for (int i = 0; i < jsonArray.size(); i++) {
+      results.add(flattenJsonObject(jsonArray.get(i).getAsJsonObject()));
+    }
+    return results;
+  }
+
+  protected static Map<String, Object> flattenJsonObject(JsonObject jsonObject) {
+    Map<String, Object> result = new HashMap<>();
+    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+      String key = entry.getKey();
+      JsonElement valueElement = entry.getValue();
+
+      if (valueElement.isJsonPrimitive()) {
+        JsonPrimitive jsonPrimitive = valueElement.getAsJsonPrimitive();
+        if (jsonPrimitive.isNumber()) {
+          // CDAP structured record builder does not understand type "Number", so we have to convert this
+          // into double. Which seems like than gets correctly casted to other types (int, long, float).
+          result.put(key, jsonPrimitive.getAsNumber().doubleValue());
+        } else if (jsonPrimitive.isString()) {
+          result.put(key, jsonPrimitive.getAsString());
+        } else if (jsonPrimitive.isBoolean()) {
+          result.put(key, jsonPrimitive.getAsBoolean());
+        }
+      } else if (valueElement.isJsonArray()) {
+        result.put(key, flattenJsonObjects(valueElement.getAsJsonArray()));
+      } else if (valueElement.isJsonObject()) {
+        JsonObject valueObject = valueElement.getAsJsonObject();
+        if (key.equals(NOT_FLATTENED_FIELD)) {
+          result.put(key, flattenJsonObject(valueObject));
+        } else {
+          result.putAll(flattenJsonObject(valueObject));
+        }
+      }
+    }
+    return result;
+  }
 
   public static LanguageServiceClient createLanguageServiceClient(String serviceFilePath) {
     LanguageServiceSettings.Builder languageServiceSettingsBuilder = LanguageServiceSettings.newBuilder();
     try {
       if (serviceFilePath != null) {
-
           GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(serviceFilePath));
           languageServiceSettingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
       }

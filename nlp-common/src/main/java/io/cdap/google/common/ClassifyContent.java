@@ -20,7 +20,10 @@ import com.google.cloud.language.v1.ClassifyTextRequest;
 import com.google.cloud.language.v1.Document;
 import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.gson.JsonObject;
 import com.google.protobuf.MessageOrBuilder;
+import io.cdap.cdap.api.data.format.StructuredRecord;
+import io.cdap.cdap.api.data.schema.Schema;
 
 /**
  * Classifies the input documents into a large set of categories. The categories are structured hierarchically.
@@ -29,6 +32,23 @@ public class ClassifyContent extends NLPMethodExecutor {
 
   public ClassifyContent(String languageCode, EncodingType encoding, LanguageServiceClient language) {
     super(languageCode, encoding, language);
+  }
+
+  @Override
+  protected StructuredRecord getRecordFromJson(String json) {
+    Schema schema = Schema.recordOf(ClassifyContent.class.getName(),
+                                    Schema.Field.of("categories", Schema.arrayOf(Schema.recordOf(
+                                      "categoriesRecord",
+                                      Schema.Field.of("name", Schema.of(Schema.Type.STRING)),
+                                      Schema.Field.of("confidence", Schema.of(Schema.Type.DOUBLE))
+                                    )))
+
+    );
+    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
+
+    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
+    builder.set("categories", flattenJsonObjects(jsonObject.getAsJsonArray("categories")));
+    return builder.build();
   }
 
   @Override
