@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2017-2019 Cask Data, Inc.
+ *  Copyright © 2019 Cask Data, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy of
@@ -23,7 +23,6 @@ import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
-import io.cdap.cdap.etl.api.validation.InvalidConfigPropertyException;
 import io.cdap.google.common.NLPMethod;
 
 import java.util.stream.Stream;
@@ -88,8 +87,8 @@ public class NLPConfig extends PluginConfig {
     return Stream.of(NLPMethod.class.getEnumConstants())
       .filter(keyType -> keyType.getValue().equalsIgnoreCase(methodName))
       .findAny()
-      .orElseThrow(() -> new InvalidConfigPropertyException(
-        String.format("Unsupported value for '%s': '%s'", PROPERTY_METHOD_NAME, methodName), PROPERTY_METHOD_NAME));
+      .orElseThrow(() -> new IllegalStateException(
+        String.format("Unsupported value for '%s': '%s'", PROPERTY_METHOD_NAME, methodName)));
   }
 
   public EncodingType getEncodingType() {
@@ -97,19 +96,13 @@ public class NLPConfig extends PluginConfig {
       return EncodingType.NONE;
     }
 
-    switch (encoding) {
-      case "UTF8":
-        return EncodingType.UTF8;
-      case "UTF16":
-        return EncodingType.UTF16;
-      case "UTF32":
-        return EncodingType.UTF32;
-      default:
-        throw new InvalidConfigPropertyException(String.format(
+    return Stream.of(EncodingType.class.getEnumConstants())
+      .filter(keyType -> keyType.toString().equals(encoding))
+      .findAny()
+      .orElseThrow(() -> new IllegalStateException(
+        String.format(
           "Type of encoding specified '%s' is not supported. " +
-            "Supported values are NONE, UTF8, UTF16, UTF32.", encoding), PROPERTY_ENCODING
-        );
-    }
+            "Supported values are NONE, UTF8, UTF16, UTF32.", encoding)));
   }
 
   @Nullable
@@ -121,9 +114,8 @@ public class NLPConfig extends PluginConfig {
     return Stream.of(ErrorHandling.class.getEnumConstants())
       .filter(keyType -> keyType.getValue().equalsIgnoreCase(errorHandling))
       .findAny()
-      .orElseThrow(() -> new InvalidConfigPropertyException(
-        String.format("Unsupported value for '%s': '%s'", PROPERTY_ERROR_HANDLING, errorHandling),
-        PROPERTY_ERROR_HANDLING));
+      .orElseThrow(() -> new IllegalStateException(
+        String.format("Unsupported value for '%s': '%s'", PROPERTY_ERROR_HANDLING, errorHandling)));
   }
 
   @Nullable
@@ -144,11 +136,26 @@ public class NLPConfig extends PluginConfig {
     // trigger getters, so that they fail if value cannot be converted to enum.
     try {
       getErrorHandling();
-      getMethod();
-      getEncodingType();
-    } catch (InvalidConfigPropertyException ex) {
+    } catch (IllegalStateException ex) {
       failureCollector.addFailure(ex.getMessage(), null)
-        .withConfigProperty(ex.getProperty());
+        .withStacktrace(ex.getStackTrace())
+        .withConfigProperty(PROPERTY_ERROR_HANDLING);
+    }
+
+    try {
+      getMethod();
+    } catch (IllegalStateException ex) {
+      failureCollector.addFailure(ex.getMessage(), null)
+        .withStacktrace(ex.getStackTrace())
+        .withConfigProperty(PROPERTY_METHOD_NAME);
+    }
+
+    try {
+      getEncodingType();
+    } catch (IllegalStateException ex) {
+      failureCollector.addFailure(ex.getMessage(), null)
+        .withStacktrace(ex.getStackTrace())
+        .withConfigProperty(PROPERTY_ENCODING);
     }
   }
 }
