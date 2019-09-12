@@ -20,10 +20,7 @@ import com.google.cloud.language.v1.AnalyzeSentimentRequest;
 import com.google.cloud.language.v1.Document;
 import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
-import com.google.gson.JsonObject;
 import com.google.protobuf.MessageOrBuilder;
-import io.cdap.cdap.api.data.format.StructuredRecord;
-import io.cdap.cdap.api.data.schema.Schema;
 
 /**
  * Provides the prevailing emotional opinion within a provided text. The API returns two values: The "score" describes
@@ -32,33 +29,9 @@ import io.cdap.cdap.api.data.schema.Schema;
  * The "magnitude" measures the strength of the emotion.
  */
 public class AnalyzeSentiment extends NLPMethodExecutor {
+
   public AnalyzeSentiment(String languageCode, EncodingType encoding, LanguageServiceClient language) {
     super(languageCode, encoding, language);
-  }
-
-  @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    Schema schema = Schema.recordOf(AnalyzeSentiment.class.getName(),
-                                    Schema.Field.of("language", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of("score", Schema.of(Schema.Type.DOUBLE)),
-                                    Schema.Field.of("magnitude", Schema.of(Schema.Type.DOUBLE)),
-                                    Schema.Field.of("sentences", Schema.arrayOf(Schema.recordOf(
-                                      "sentencesRecord",
-                                      Schema.Field.of("content", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("beginOffset", Schema.of(Schema.Type.LONG)),
-                                      Schema.Field.of("score", Schema.of(Schema.Type.DOUBLE)),
-                                      Schema.Field.of("magnitude", Schema.of(Schema.Type.DOUBLE))
-                                    )))
-
-    );
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
-
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    builder.set("score", jsonObject.getAsJsonObject("documentSentiment").get("score").getAsDouble());
-    builder.set("magnitude", jsonObject.getAsJsonObject("documentSentiment").get("magnitude").getAsDouble());
-    builder.set("sentences", flattenJsonObjects(jsonObject.getAsJsonArray("sentences")));
-    return builder.build();
   }
 
   @Override

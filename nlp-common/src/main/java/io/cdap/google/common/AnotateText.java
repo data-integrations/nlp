@@ -20,10 +20,7 @@ import com.google.cloud.language.v1.AnnotateTextRequest;
 import com.google.cloud.language.v1.Document;
 import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
-import com.google.gson.JsonObject;
 import com.google.protobuf.MessageOrBuilder;
-import io.cdap.cdap.api.data.format.StructuredRecord;
-import io.cdap.cdap.api.data.schema.Schema;
 
 /**
  * A directive that provides all the features that
@@ -31,80 +28,9 @@ import io.cdap.cdap.api.data.schema.Schema;
  * nlp-analyze-syntax, nlp-classify-text provide in one call.
  */
 public class AnotateText extends NLPMethodExecutor {
+
   public AnotateText(String languageCode, EncodingType encoding, LanguageServiceClient language) {
     super(languageCode, encoding, language);
-  }
-
-  @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    Schema schema = Schema.recordOf(AnotateText.class.getName(),
-                                    Schema.Field.of("language",
-                                                    Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of("score", Schema.of(Schema.Type.DOUBLE)),
-                                    Schema.Field.of("magnitude", Schema.of(Schema.Type.DOUBLE)),
-
-                                    Schema.Field.of("tokens", Schema.arrayOf(Schema.recordOf(
-                                      "tokensRecord",
-                                      Schema.Field.of("content", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("beginOffset", Schema.of(Schema.Type.LONG)),
-                                      Schema.Field.of("tag", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("aspect", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("case", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("speechForm", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("gender", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("mood", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("number", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("person", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("proper", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("reciprocity", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("tense", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("voice", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("headTokenIndex",
-                                                      Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("label", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("lemma", Schema.of(Schema.Type.STRING))
-                                    ))),
-                                    Schema.Field.of("sentences", Schema.arrayOf(Schema.recordOf(
-                                      "sentencesRecord",
-                                      Schema.Field.of("content", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("beginOffset", Schema.of(Schema.Type.LONG)),
-                                      Schema.Field.of("score", Schema.of(Schema.Type.DOUBLE)),
-                                      Schema.Field.of("magnitude", Schema.of(Schema.Type.DOUBLE))
-                                    ))),
-                                    Schema.Field.of("entities", Schema.arrayOf(Schema.recordOf(
-                                      "entitiesRecord",
-                                      Schema.Field.of("name", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("type", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("metadata", Schema.mapOf(
-                                        Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING))),
-                                      Schema.Field.of("salience", Schema.of(Schema.Type.DOUBLE)),
-                                      Schema.Field.of("magnitude", Schema.of(Schema.Type.DOUBLE)),
-                                      Schema.Field.of("score", Schema.of(Schema.Type.DOUBLE)),
-                                      Schema.Field.of("mentions", Schema.arrayOf(Schema.recordOf(
-                                        "mentionsRecord",
-                                        Schema.Field.of("content", Schema.of(Schema.Type.STRING)),
-                                        Schema.Field.of("beginOffset", Schema.of(Schema.Type.LONG)),
-                                        Schema.Field.of("type", Schema.of(Schema.Type.STRING)),
-                                        Schema.Field.of("magnitude", Schema.of(Schema.Type.DOUBLE)),
-                                        Schema.Field.of("score", Schema.of(Schema.Type.DOUBLE))
-                                      )))))),
-                                    Schema.Field.of("categories", Schema.arrayOf(Schema.recordOf(
-                                      "categoriesRecord",
-                                      Schema.Field.of("name", Schema.of(Schema.Type.STRING)),
-                                      Schema.Field.of("confidence", Schema.of(Schema.Type.DOUBLE))
-                                    )))
-    );
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
-
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    builder.set("tokens", flattenJsonObjects(jsonObject.getAsJsonArray("tokens")));
-    builder.set("sentences", flattenJsonObjects(jsonObject.getAsJsonArray("sentences")));
-    builder.set("entities", flattenJsonObjects(jsonObject.getAsJsonArray("entities")));
-    builder.set("score", jsonObject.getAsJsonObject("documentSentiment").get("score").getAsDouble());
-    builder.set("magnitude", jsonObject.getAsJsonObject("documentSentiment").get("magnitude").getAsDouble());
-    builder.set("categories", flattenJsonObjects(jsonObject.getAsJsonArray("categories")));
-    return builder.build();
   }
 
   @Override

@@ -23,7 +23,6 @@ import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
-import io.cdap.google.common.NLPMethod;
 
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -35,21 +34,24 @@ public class NLPConfig extends PluginConfig {
   public static final String AUTO_DETECT = "auto-detect";
 
   public static final String PROPERTY_SOURCE_FIELD = "sourceField";
-  public static final String PROPERTY_METHOD_NAME = "methodName";
   public static final String PROPERTY_ENCODING = "encoding";
   public static final String PROPERTY_LANGUAGE_CODE = "languageCode";
   public static final String PROPERTY_ERROR_HANDLING = "errorHandling";
   public static final String PROPERTY_SERVICE_ACCOUNT_FILE_PATH = "serviceFilePath";
 
+  public NLPConfig(String sourceField, @Nullable String encoding, @Nullable String languageCode,
+                   String errorHandling, @Nullable String serviceFilePath) {
+    this.sourceField = sourceField;
+    this.encoding = encoding;
+    this.languageCode = languageCode;
+    this.errorHandling = errorHandling;
+    this.serviceFilePath = serviceFilePath;
+  }
+
   @Name(PROPERTY_SOURCE_FIELD)
   @Description("Field which contains an input text")
   @Macro
   private String sourceField;
-
-  @Name(PROPERTY_METHOD_NAME)
-  @Description("Name of Google Natural Language API Method")
-  @Macro
-  private String methodName;
 
   @Name(PROPERTY_ENCODING)
   @Description("Text encoding. Providing it is recommended because the API provides the beginning offsets for" +
@@ -81,14 +83,6 @@ public class NLPConfig extends PluginConfig {
 
   public String getSourceField() {
     return sourceField;
-  }
-
-  public NLPMethod getMethod() {
-    return Stream.of(NLPMethod.class.getEnumConstants())
-      .filter(keyType -> keyType.getValue().equalsIgnoreCase(methodName))
-      .findAny()
-      .orElseThrow(() -> new IllegalStateException(
-        String.format("Unsupported value for '%s': '%s'", PROPERTY_METHOD_NAME, methodName)));
   }
 
   public EncodingType getEncodingType() {
@@ -138,23 +132,13 @@ public class NLPConfig extends PluginConfig {
       getErrorHandling();
     } catch (IllegalStateException ex) {
       failureCollector.addFailure(ex.getMessage(), null)
-        .withStacktrace(ex.getStackTrace())
         .withConfigProperty(PROPERTY_ERROR_HANDLING);
-    }
-
-    try {
-      getMethod();
-    } catch (IllegalStateException ex) {
-      failureCollector.addFailure(ex.getMessage(), null)
-        .withStacktrace(ex.getStackTrace())
-        .withConfigProperty(PROPERTY_METHOD_NAME);
     }
 
     try {
       getEncodingType();
     } catch (IllegalStateException ex) {
       failureCollector.addFailure(ex.getMessage(), null)
-        .withStacktrace(ex.getStackTrace())
         .withConfigProperty(PROPERTY_ENCODING);
     }
   }

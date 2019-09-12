@@ -20,10 +20,7 @@ import com.google.cloud.language.v1.AnalyzeEntitiesRequest;
 import com.google.cloud.language.v1.Document;
 import com.google.cloud.language.v1.EncodingType;
 import com.google.cloud.language.v1.LanguageServiceClient;
-import com.google.gson.JsonObject;
 import com.google.protobuf.MessageOrBuilder;
-import io.cdap.cdap.api.data.format.StructuredRecord;
-import io.cdap.cdap.api.data.schema.Schema;
 
 /**
  * Detects known entities like public figures or landmarks from a given text.
@@ -31,34 +28,6 @@ import io.cdap.cdap.api.data.schema.Schema;
 public class AnalyzeEntities extends NLPMethodExecutor {
   public AnalyzeEntities(String languageCode, EncodingType encoding, LanguageServiceClient language) {
     super(languageCode, encoding, language);
-  }
-
-  @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    Schema schema = Schema.recordOf(AnalyzeEntities.class.getName(),
-                           Schema.Field.of("language",
-                                           Schema.of(Schema.Type.STRING)),
-                          Schema.Field.of("entities", Schema.arrayOf(Schema.recordOf(
-                            "entitiesRecord",
-                            Schema.Field.of("name", Schema.of(Schema.Type.STRING)),
-                            Schema.Field.of("type", Schema.of(Schema.Type.STRING)),
-                            Schema.Field.of("metadata", Schema.mapOf(
-                              Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING))),
-                            Schema.Field.of("salience", Schema.of(Schema.Type.DOUBLE)),
-                            Schema.Field.of("mentions", Schema.arrayOf(Schema.recordOf(
-                              "mentionsRecord",
-                              Schema.Field.of("content", Schema.of(Schema.Type.STRING)),
-                              Schema.Field.of("beginOffset", Schema.of(Schema.Type.LONG)),
-                              Schema.Field.of("type", Schema.of(Schema.Type.STRING))
-                          ))))))
-
-    );
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
-
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    builder.set("entities", flattenJsonObjects(jsonObject.getAsJsonArray("entities")));
-    return builder.build();
   }
 
   @Override

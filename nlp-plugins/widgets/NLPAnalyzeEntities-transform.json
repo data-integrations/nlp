@@ -2,7 +2,7 @@
   "metadata": {
     "spec-version": "1.6"
   },
-  "display-name" : "NLP",
+  "display-name" : "NLP Analyze Entities",
   "configuration-groups": [
     {
       "label": "General",
@@ -11,21 +11,6 @@
           "widget-type": "textbox",
           "label": "Source Field",
           "name": "sourceField"
-        },
-        {
-          "widget-type": "select",
-          "label": "Method Name",
-          "name": "methodName",
-          "widget-attributes": {
-            "values": [
-              "Syntax Analysis",
-              "Sentiment Analysis",
-              "Entity Analysis",
-              "Entity Sentiment Analysis",
-              "Text Classification",
-              "ALL (Anotate text)"
-            ]
-          }
         },
         {
           "widget-type": "select",
