@@ -5,8 +5,8 @@ Description
 Transforms input text into an information provided by Google Natural Language API.
 
 Sentiment analysis will provide the prevailing emotional opinion within a provided text. The API returns two values:
-The "score" describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
-The "magnitude" measures the strength of the emotion.
+The score describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
+The magnitude measures the strength of the emotion.
 
 See [official documentation](https://cloud.google.com/natural-language/docs/basics) for more information.
 
