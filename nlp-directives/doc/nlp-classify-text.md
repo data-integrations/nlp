@@ -1,8 +1,8 @@
 # nlp-classify-text
 
 Classifies the input documents into a large set of categories. The categories are structured hierarchical, 
-e.g. the Category “Hobbies & Leisure” has several sub-categories, one of which would be “Hobbies & Leisure/Outdoors” 
-which itself has sub-categories like “Hobbies & Leisure/Outdoors/Fishing.”
+e.g. the Category "Hobbies & Leisure" has several sub-categories, one of which would be "Hobbies & Leisure/Outdoors" 
+which itself has sub-categories like "Hobbies & Leisure/Outdoors/Fishing."
 ## Syntax
 ```
 nlp-classify-text <source-column> <destination-column> [authentication-file] [<encoding>] [<language>]```

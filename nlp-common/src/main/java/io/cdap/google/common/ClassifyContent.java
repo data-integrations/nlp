@@ -32,7 +32,7 @@ public class ClassifyContent extends NLPMethodExecutor {
   }
 
   @Override
-  protected MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
+  public MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
     ClassifyTextRequest request = ClassifyTextRequest.newBuilder()
       .setDocument(document)
       .build();

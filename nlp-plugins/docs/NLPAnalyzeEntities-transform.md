@@ -6,6 +6,8 @@ Transforms input text into an information provided by Google Natural Language AP
 
 Detects known entities like public figures or landmarks from a given text.
 
+See [official documentation](https://cloud.google.com/natural-language/docs/basics) for more information.
+
 Credentials
 -----------
 If the plugin is run on a Google Cloud Dataproc cluster, the service account key does not need to be
@@ -28,6 +30,8 @@ differently.
 
 **Language Code**: Code of the language of the text data. E.g. en, jp, etc. If not provided
 Google Natural Language API will autodetect the language.
+
+See [supported languages](https://cloud.google.com/natural-language/docs/languages).
 
 **Error Handling:** Error handling strategy to use when API request to Google Natural Language API fails
 
@@ -56,7 +60,7 @@ In the examples below. The records are presented in a form of json where:
     {
       "name": "1600 Pennsylvania Ave NW, Washington, DC",
       "type": "ADDRESS",
-      "metadata": { # as a map<string,string> since fields are dynamic. Do not flatten. Looks better
+      "metadata": {
         "country": "US",
         "sublocality": "Fort Lesley J. McNair",
         "locality": "Washington",
@@ -73,7 +77,6 @@ In the examples below. The records are presented in a form of json where:
           "type": "TYPE_UNKNOWN"
         }
       ]
-      }
     }
     ...
   ],

@@ -16,7 +16,8 @@
 
 package io.cdap.google.plugins;
 
-import com.google.gson.JsonObject;
+import com.google.cloud.language.v1.AnalyzeSentimentResponse;
+import com.google.protobuf.MessageOrBuilder;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -86,18 +87,17 @@ public class AnalyzeSentimentTransform extends NLPTransform {
   }
 
   @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
-    JsonObject documentSentiment = jsonObject.getAsJsonObject("documentSentiment");
+  protected StructuredRecord getRecordFromResponse(MessageOrBuilder message) {
+    AnalyzeSentimentResponse response = (AnalyzeSentimentResponse) message;
+
     StructuredRecord.Builder builder = StructuredRecord.builder(SCHEMA);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    if (documentSentiment.has("score")) {
-      builder.set("score", documentSentiment.get("score").getAsDouble());
-    }
-    if (documentSentiment.has("magnitude")) {
-      builder.set("magnitude", documentSentiment.get("magnitude").getAsDouble());
-    }
-    builder.set("sentences", flattenJsonObjects(jsonObject.getAsJsonArray("sentences"), SENTENCE_SCORED));
+    builder.set("language", response.getLanguage());
+
+    builder.set("score", response.getDocumentSentiment().getScore());
+    builder.set("magnitude", response.getDocumentSentiment().getMagnitude());
+
+    builder.set("sentences", getSentences(response.getSentencesList(), SENTENCE_SCORED));
+
     return builder.build();
   }
 

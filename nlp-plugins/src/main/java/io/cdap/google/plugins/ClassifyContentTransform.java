@@ -16,7 +16,8 @@
 
 package io.cdap.google.plugins;
 
-import com.google.gson.JsonObject;
+import com.google.cloud.language.v1.ClassifyTextResponse;
+import com.google.protobuf.MessageOrBuilder;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -80,11 +81,12 @@ public class ClassifyContentTransform extends NLPTransform {
   }
 
   @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
+  protected StructuredRecord getRecordFromResponse(MessageOrBuilder message) {
+    ClassifyTextResponse response = (ClassifyTextResponse) message;
 
     StructuredRecord.Builder builder = StructuredRecord.builder(SCHEMA);
-    builder.set("categories", flattenJsonObjects(jsonObject.getAsJsonArray("categories"), CATEGORY));
+
+    builder.set("categories", getCategories(response.getCategoriesList()));
     return builder.build();
   }
 

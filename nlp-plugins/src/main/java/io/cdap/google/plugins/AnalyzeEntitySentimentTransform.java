@@ -16,7 +16,8 @@
 
 package io.cdap.google.plugins;
 
-import com.google.gson.JsonObject;
+import com.google.cloud.language.v1.AnalyzeEntitySentimentResponse;
+import com.google.protobuf.MessageOrBuilder;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -27,9 +28,9 @@ import io.cdap.google.common.NLPMethod;
 
 /**
  * Sentiment analysis will provide the prevailing emotional opinion within a provided text. The API returns two values:
- * The “score” describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
+ * The "score" describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
  *
- * The “magnitude” measures the strength of the emotion.
+ * The "magnitude" measures the strength of the emotion.
  *
  * The json returned by API:
  * {
@@ -94,8 +95,8 @@ import io.cdap.google.common.NLPMethod;
 @Plugin(type = Transform.PLUGIN_TYPE)
 @Name("NLPAnalyzeEntitySentiment")
 @Description("Sentiment analysis will provide the prevailing emotional opinion within a provided text. " +
-  "The API returns two values:\n The “score” describes the emotional leaning of the text from -1 (negative) " +
-  "to +1 (positive), with 0 being neutral.\n The “magnitude” measures the strength of the emotion.")
+  "The API returns two values:\n The \"score\" describes the emotional leaning of the text from -1 (negative) " +
+  "to +1 (positive), with 0 being neutral.\n The \"magnitude\" measures the strength of the emotion.")
 public class AnalyzeEntitySentimentTransform extends NLPTransform {
   private static final Schema SCHEMA =
     Schema.recordOf(AnalyzeEntitySentimentTransform.class.getSimpleName(),
@@ -107,12 +108,12 @@ public class AnalyzeEntitySentimentTransform extends NLPTransform {
   }
 
   @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
+  protected StructuredRecord getRecordFromResponse(MessageOrBuilder message) {
+    AnalyzeEntitySentimentResponse response = (AnalyzeEntitySentimentResponse) message;
 
     StructuredRecord.Builder builder = StructuredRecord.builder(SCHEMA);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    builder.set("entities", flattenJsonObjects(jsonObject.getAsJsonArray("entities"), ENTITY_SCORED));
+    builder.set("language", response.getLanguage());
+    builder.set("entities", getEntities(response.getEntitiesList(), ENTITY_SCORED, MENTION_SCORED));
     return builder.build();
   }
 

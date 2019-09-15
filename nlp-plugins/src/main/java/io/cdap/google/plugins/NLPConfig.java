@@ -61,7 +61,6 @@ public class NLPConfig extends PluginConfig {
   @Nullable
   private String encoding;
 
-
   @Name(PROPERTY_LANGUAGE_CODE)
   @Description("Code of the language of the text data. E.g. en, jp, etc. If not provided" +
     "Google Natural Language API will autodetect the language.")

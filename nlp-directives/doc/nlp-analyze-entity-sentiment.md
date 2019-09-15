@@ -1,9 +1,9 @@
 # nlp-analyze-entity-sentiment
 
 Sentiment analysis will provide the prevailing emotional opinion within a provided text. The API returns two values: 
-The “score” describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
+The "score" describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
 
-The “magnitude” measures the strength of the emotion.
+The "magnitude" measures the strength of the emotion.
 
 ## Syntax
 ```

@@ -8,6 +8,8 @@ Sentiment analysis will provide the prevailing emotional opinion within a provid
 The "score" describes the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
 The "magnitude" measures the strength of the emotion.
 
+See [official documentation](https://cloud.google.com/natural-language/docs/basics) for more information.
+
 Credentials
 -----------
 If the plugin is run on a Google Cloud Dataproc cluster, the service account key does not need to be
@@ -30,6 +32,8 @@ differently.
 
 **Language Code**: Code of the language of the text data. E.g. en, jp, etc. If not provided
 Google Natural Language API will autodetect the language.
+
+See [supported languages](https://cloud.google.com/natural-language/docs/languages).
 
 **Error Handling:** Error handling strategy to use when API request to Google Natural Language API fails
 

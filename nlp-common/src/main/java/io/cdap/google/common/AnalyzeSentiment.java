@@ -35,7 +35,7 @@ public class AnalyzeSentiment extends NLPMethodExecutor {
   }
 
   @Override
-  protected MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
+  public MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
     AnalyzeSentimentRequest request = AnalyzeSentimentRequest.newBuilder()
       .setDocument(document)
       .setEncodingType(encoding)

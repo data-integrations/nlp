@@ -33,7 +33,7 @@ public class AnalyzeSyntax extends NLPMethodExecutor {
   }
 
   @Override
-  protected MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
+  public MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
     AnalyzeSyntaxRequest request = AnalyzeSyntaxRequest.newBuilder()
       .setDocument(document)
       .setEncodingType(encoding)

@@ -16,7 +16,8 @@
 
 package io.cdap.google.plugins;
 
-import com.google.gson.JsonObject;
+import com.google.cloud.language.v1.AnalyzeEntitiesResponse;
+import com.google.protobuf.MessageOrBuilder;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -123,12 +124,12 @@ public class AnalyzeEntitiesTransform extends NLPTransform {
   }
 
   @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
+  protected StructuredRecord getRecordFromResponse(MessageOrBuilder message) {
+    AnalyzeEntitiesResponse response = (AnalyzeEntitiesResponse) message;
 
     StructuredRecord.Builder builder = StructuredRecord.builder(SCHEMA);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    builder.set("entities", flattenJsonObjects(jsonObject.getAsJsonArray("entities"), ENTITY));
+    builder.set("language", response.getLanguage());
+    builder.set("entities", getEntities(response.getEntitiesList(), ENTITY, MENTION));
     return builder.build();
   }
 

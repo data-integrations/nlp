@@ -6,6 +6,8 @@ Transforms input text into an information provided by Google Natural Language AP
 Classifies the input documents into a large set of categories. 
 The categories are structured hierarchically.
 
+See [official documentation](https://cloud.google.com/natural-language/docs/basics) for more information.
+
 Credentials
 -----------
 If the plugin is run on a Google Cloud Dataproc cluster, the service account key does not need to be
@@ -28,6 +30,8 @@ differently.
 
 **Language Code**: Code of the language of the text data. E.g. en, jp, etc. If not provided
 Google Natural Language API will autodetect the language.
+
+See [supported languages](https://cloud.google.com/natural-language/docs/languages).
 
 **Error Handling:** Error handling strategy to use when API request to Google Natural Language API fails
 

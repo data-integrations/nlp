@@ -20,6 +20,8 @@ Make sure the account key has permission to access Natural Language API.
 The service account key file needs to be available on every node in your cluster and
 must be readable by all users running the job.
 
+See [official documentation](https://cloud.google.com/natural-language/docs/basics) for more information.
+
 Properties
 ----------
 **Source Field:** Field which contains an input text.
@@ -30,6 +32,8 @@ differently.
 
 **Language Code**: Code of the language of the text data. E.g. en, jp, etc. If not provided
 Google Natural Language API will autodetect the language.
+
+See [supported languages](https://cloud.google.com/natural-language/docs/languages).
 
 **Error Handling:** Error handling strategy to use when API request to Google Natural Language API fails
 

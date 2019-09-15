@@ -16,7 +16,8 @@
 
 package io.cdap.google.plugins;
 
-import com.google.gson.JsonObject;
+import com.google.cloud.language.v1.AnnotateTextResponse;
+import com.google.protobuf.MessageOrBuilder;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -178,22 +179,21 @@ public class AnotateTextTransform extends NLPTransform {
   }
 
   @Override
-  protected StructuredRecord getRecordFromJson(String json) {
-    JsonObject jsonObject = PARSER.parse(json).getAsJsonObject();
-    JsonObject documentSentiment = jsonObject.getAsJsonObject("documentSentiment");
+  protected StructuredRecord getRecordFromResponse(MessageOrBuilder message) {
+    AnnotateTextResponse response = (AnnotateTextResponse) message;
 
     StructuredRecord.Builder builder = StructuredRecord.builder(SCHEMA);
-    builder.set("language", jsonObject.getAsJsonPrimitive("language").getAsString());
-    builder.set("tokens", flattenJsonObjects(jsonObject.getAsJsonArray("tokens"), TOKEN));
-    builder.set("sentences", flattenJsonObjects(jsonObject.getAsJsonArray("sentences"), SENTENCE_SCORED));
-    builder.set("entities", flattenJsonObjects(jsonObject.getAsJsonArray("entities"), ENTITY_SCORED));
-    if (documentSentiment.has("score")) {
-      builder.set("score", documentSentiment.get("score").getAsDouble());
-    }
-    if (documentSentiment.has("magnitude")) {
-      builder.set("magnitude", documentSentiment.get("magnitude").getAsDouble());
-    }
-    builder.set("categories", flattenJsonObjects(jsonObject.getAsJsonArray("categories"), CATEGORY));
+
+    builder.set("language", response.getLanguage());
+
+    builder.set("score", response.getDocumentSentiment().getScore());
+    builder.set("magnitude", response.getDocumentSentiment().getMagnitude());
+
+    builder.set("categories", getCategories(response.getCategoriesList()));
+    builder.set("sentences", getSentences(response.getSentencesList(), SENTENCE_SCORED));
+    builder.set("tokens", getTokens(response.getTokensList()));
+    builder.set("entities", getEntities(response.getEntitiesList(), ENTITY_SCORED, MENTION_SCORED));
+
     return builder.build();
   }
 

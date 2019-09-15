@@ -34,7 +34,7 @@ public class AnotateText extends NLPMethodExecutor {
   }
 
   @Override
-  protected MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
+  public MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
     AnnotateTextRequest.Features features = AnnotateTextRequest.Features.newBuilder()
       .setClassifyText(true)
       .setExtractDocumentSentiment(true)

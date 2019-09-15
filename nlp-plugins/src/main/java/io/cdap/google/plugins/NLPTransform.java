@@ -16,16 +16,17 @@
 
 package io.cdap.google.plugins;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.cloud.language.v1.ClassificationCategory;
+import com.google.cloud.language.v1.Entity;
+import com.google.cloud.language.v1.EntityMention;
+import com.google.cloud.language.v1.PartOfSpeech;
+import com.google.cloud.language.v1.Sentence;
+import com.google.cloud.language.v1.Token;
+import com.google.protobuf.MessageOrBuilder;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.format.UnexpectedFormatException;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.Emitter;
-import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.InvalidEntry;
 import io.cdap.cdap.etl.api.PipelineConfigurer;
 import io.cdap.cdap.etl.api.Transform;
@@ -33,9 +34,7 @@ import io.cdap.google.common.NLPMethod;
 import io.cdap.google.common.NLPMethodExecutor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Analyses an input text via Google Language API. And returns the results of the analysis in form of a record.
@@ -48,7 +47,7 @@ import java.util.Map;
  * - Anotate Text
  */
 public abstract class NLPTransform extends Transform<StructuredRecord, StructuredRecord> {
-  private static final Schema MENTION_SCORED =
+  protected static final Schema MENTION_SCORED =
     Schema.recordOf("mentionsRecord",
                     Schema.Field.of("content",
                                     Schema.of(Schema.Type.STRING)),
@@ -104,10 +103,6 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
                     Schema.Field.of("name", Schema.of(Schema.Type.STRING)),
                     Schema.Field.of("confidence", Schema.of(Schema.Type.DOUBLE)));
 
-  protected static final JsonParser PARSER = new JsonParser();
-  // metadata is dynamic and should be map<string,string>. Do not flatten it.
-  protected static final String NOT_FLATTENED_FIELD = "metadata";
-
   private static final String ERROR_SCHEMA_BODY_PROPERTY = "body";
   private static final Schema STRING_ERROR_SCHEMA = Schema.recordOf("stringError",
                                                                     Schema.Field.of(ERROR_SCHEMA_BODY_PROPERTY,
@@ -119,10 +114,10 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
   }
 
   public void configurePipeline(PipelineConfigurer pipelineConfigurer) {
-    Schema inputSchema = pipelineConfigurer.getStageConfigurer().getInputSchema();
+/*    Schema inputSchema = pipelineConfigurer.getStageConfigurer().getInputSchema();
     FailureCollector failureCollector = pipelineConfigurer.getStageConfigurer().getFailureCollector();
     config.validate(failureCollector, inputSchema);
-    failureCollector.getOrThrowException();
+    failureCollector.getOrThrowException();*/
   }
 
   @Override
@@ -131,7 +126,7 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
     try (NLPMethodExecutor nlpMethodExecutor = getMethod().createExecutor(
       config.getServiceAccountFilePath(), config.getLanguageCode(), config.getEncodingType())) {
       try {
-        emitter.emit(getRecordFromJson(nlpMethodExecutor.execute(text)));
+        emitter.emit(getRecordFromResponse(nlpMethodExecutor.getResponse(text)));
       } catch (Exception e) {
         switch (config.getErrorHandling()) {
           case SKIP:
@@ -151,82 +146,106 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
     }
   }
 
-
-  protected List<String> jsonArrayToList(JsonArray jsonArray) {
-    List<String> result = new ArrayList<>();
-    for (int i = 0; i < jsonArray.size(); i++) {
-      result.add(jsonArray.get(i).getAsJsonObject().toString());
-    }
-    return result;
-  }
-
   protected abstract NLPMethod getMethod();
-  protected abstract StructuredRecord getRecordFromJson(String json);
+  protected abstract StructuredRecord getRecordFromResponse(MessageOrBuilder message);
 
-  protected static List<StructuredRecord> flattenJsonObjects(JsonArray jsonArray, Schema objectSchema) {
-    return objectsToStructuredRecords(flattenJsonObjectsToMaps(jsonArray), objectSchema);
-  }
+  protected static List<StructuredRecord> getEntities(List<Entity> entities, Schema entitySchema,
+                                                      Schema mentionSchema) {
+    List<StructuredRecord> entityRecords = new ArrayList<>();
 
-  private static List<StructuredRecord> objectsToStructuredRecords(List<Map<String, Object>> objects,
-                                                                   Schema objectSchema) {
-    List<StructuredRecord> records = new ArrayList<>();
+    for (Entity entity : entities) {
+      StructuredRecord.Builder entityBuilder = StructuredRecord.builder(entitySchema);
+      entityBuilder.set("name", entity.getName());
+      entityBuilder.set("type", entity.getType().toString());
+      entityBuilder.set("metadata", entity.getMetadataMap());
+      entityBuilder.set("salience", entity.getSalience());
 
-    for (Map<String, Object> object : objects) {
-      StructuredRecord.Builder builder = StructuredRecord.builder(objectSchema);
-      for (Map.Entry<String, Object> objectEntry : object.entrySet()) {
-        String entryKey = objectEntry.getKey();
-        Object entryValue = objectEntry.getValue();
-        if (entryValue instanceof List) {
-          Schema innerSchema = objectSchema.getField(entryKey).getSchema().getComponentSchema();
-          List<StructuredRecord> recordsList = objectsToStructuredRecords((List<Map<String, Object>>) entryValue,
-                                                                          innerSchema);
-          builder.set(entryKey, recordsList);
-        } else {
-          builder.set(entryKey, entryValue);
-        }
+      if (entitySchema.getField("magnitude") != null) {
+        entityBuilder.set("magnitude", entity.getSentiment().getMagnitude());
+        entityBuilder.set("score", entity.getSentiment().getScore());
       }
-      records.add(builder.build());
+
+      List<StructuredRecord> mentions = new ArrayList<>();
+      for (EntityMention entityMention : entity.getMentionsList()) {
+        StructuredRecord.Builder mentionBuilder = StructuredRecord.builder(mentionSchema);
+        mentionBuilder.set("content", entityMention.getText().getContent());
+        mentionBuilder.set("beginOffset", entityMention.getText().getBeginOffset());
+        mentionBuilder.set("type", entityMention.getType().toString());
+
+        if (mentionSchema.getField("magnitude") != null) {
+          mentionBuilder.set("magnitude", entityMention.getSentiment().getMagnitude());
+          mentionBuilder.set("score", entityMention.getSentiment().getScore());
+        }
+
+        mentions.add(mentionBuilder.build());
+      }
+      entityBuilder.set("mentions", mentions);
+
+      entityRecords.add(entityBuilder.build());
     }
 
-    return records;
+    return entityRecords;
   }
 
-  private static List<Map<String, Object>> flattenJsonObjectsToMaps(JsonArray jsonArray) {
-    List<Map<String, Object>> results = new ArrayList<>();
-    if (jsonArray != null) {
-      for (int i = 0; i < jsonArray.size(); i++) {
-        results.add(flattenJsonObjectToMap(jsonArray.get(i).getAsJsonObject()));
+  protected static List<StructuredRecord> getSentences(List<Sentence> sentences, Schema sentenceSchema) {
+    List<StructuredRecord> sentenceRecords = new ArrayList<>();
+    for (Sentence sentence : sentences) {
+      StructuredRecord.Builder sentenceBuilder = StructuredRecord.builder(sentenceSchema);
+      sentenceBuilder.set("content", sentence.getText().getContent());
+      sentenceBuilder.set("beginOffset", sentence.getText().getBeginOffset());
+
+      if (sentenceSchema.getField("magnitude") != null) {
+        sentenceBuilder.set("magnitude", sentence.getSentiment().getMagnitude());
+        sentenceBuilder.set("score", sentence.getSentiment().getScore());
       }
+
+      sentenceRecords.add(sentenceBuilder.build());
     }
-    return results;
+    return sentenceRecords;
   }
 
-  private static Map<String, Object> flattenJsonObjectToMap(JsonObject jsonObject) {
-    Map<String, Object> result = new HashMap<>();
-    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-      String key = entry.getKey();
-      JsonElement valueElement = entry.getValue();
+  protected static List<StructuredRecord> getCategories(List<ClassificationCategory> categories) {
+    List<StructuredRecord> categoryRecords = new ArrayList<>();
 
-      if (valueElement.isJsonPrimitive()) {
-        JsonPrimitive jsonPrimitive = valueElement.getAsJsonPrimitive();
-        if (jsonPrimitive.isNumber()) {
-          result.put(key, jsonPrimitive.getAsNumber());
-        } else if (jsonPrimitive.isString()) {
-          result.put(key, jsonPrimitive.getAsString());
-        } else if (jsonPrimitive.isBoolean()) {
-          result.put(key, jsonPrimitive.getAsBoolean());
-        }
-      } else if (valueElement.isJsonArray()) {
-        result.put(key, flattenJsonObjectsToMaps(valueElement.getAsJsonArray()));
-      } else if (valueElement.isJsonObject()) {
-        JsonObject valueObject = valueElement.getAsJsonObject();
-        if (key.equals(NOT_FLATTENED_FIELD)) {
-          result.put(key, flattenJsonObjectToMap(valueObject));
-        } else {
-          result.putAll(flattenJsonObjectToMap(valueObject));
-        }
-      }
+    for (ClassificationCategory category : categories) {
+      StructuredRecord.Builder categoryBuilder = StructuredRecord.builder(CATEGORY);
+      categoryBuilder.set("name", category.getName());
+      categoryBuilder.set("confidence", category.getConfidence());
+
+      categoryRecords.add(categoryBuilder.build());
     }
-    return result;
+
+    return categoryRecords;
+  }
+
+  protected static List<StructuredRecord> getTokens(List<Token> tokens) {
+    List<StructuredRecord> tokenRecords = new ArrayList<>();
+    for (Token token : tokens) {
+      StructuredRecord.Builder tokenBuilder = StructuredRecord.builder(TOKEN);
+      tokenBuilder.set("content", token.getText().getContent());
+      tokenBuilder.set("beginOffset", token.getText().getBeginOffset());
+
+      PartOfSpeech partOfSpeech = token.getPartOfSpeech();
+      tokenBuilder.set("tag", partOfSpeech.getTag().toString());
+      tokenBuilder.set("aspect", partOfSpeech.getAspect().toString());
+      tokenBuilder.set("case", partOfSpeech.getCase().toString());
+      tokenBuilder.set("speechForm", partOfSpeech.getForm().toString());
+      tokenBuilder.set("gender", partOfSpeech.getGender().toString());
+      tokenBuilder.set("mood", partOfSpeech.getMood().toString());
+      tokenBuilder.set("number", partOfSpeech.getNumber().toString());
+      tokenBuilder.set("person", partOfSpeech.getPerson().toString());
+      tokenBuilder.set("proper", partOfSpeech.getProper().toString());
+      tokenBuilder.set("reciprocity", partOfSpeech.getReciprocity().toString());
+      tokenBuilder.set("tense", partOfSpeech.getTense().toString());
+      tokenBuilder.set("voice", partOfSpeech.getVoice().toString());
+
+      tokenBuilder.set("headTokenIndex", token.getDependencyEdge().getHeadTokenIndex());
+      tokenBuilder.set("label", token.getDependencyEdge().getLabelValue());
+
+      tokenBuilder.set("lemma", token.getLemma());
+
+      tokenRecords.add(tokenBuilder.build());
+    }
+    return tokenRecords;
   }
 }
