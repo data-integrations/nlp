@@ -27,6 +27,7 @@ import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.format.UnexpectedFormatException;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.Emitter;
+import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.InvalidEntry;
 import io.cdap.cdap.etl.api.PipelineConfigurer;
 import io.cdap.cdap.etl.api.Transform;
@@ -114,10 +115,10 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
   }
 
   public void configurePipeline(PipelineConfigurer pipelineConfigurer) {
-/*    Schema inputSchema = pipelineConfigurer.getStageConfigurer().getInputSchema();
+    Schema inputSchema = pipelineConfigurer.getStageConfigurer().getInputSchema();
     FailureCollector failureCollector = pipelineConfigurer.getStageConfigurer().getFailureCollector();
     config.validate(failureCollector, inputSchema);
-    failureCollector.getOrThrowException();*/
+    failureCollector.getOrThrowException();
   }
 
   @Override
