@@ -44,7 +44,7 @@ public abstract class NLPMethodExecutor implements Closeable {
     this.language = language;
   }
 
-  public String execute(String text) {
+  public MessageOrBuilder getResponse(String text) {
     Document.Builder documentBuilder = Document.newBuilder()
       .setContent(text)
       .setType(Document.Type.PLAIN_TEXT);
@@ -53,7 +53,11 @@ public abstract class NLPMethodExecutor implements Closeable {
       documentBuilder.setLanguage(languageCode);
     }
 
-    MessageOrBuilder response = executeRequest(language, documentBuilder.build());
+    return executeRequest(language, documentBuilder.build());
+  }
+
+  public String execute(String text) {
+    MessageOrBuilder response = getResponse(text);
     try {
       String resultJson = JsonFormat.printer().print(response);
       return resultJson;

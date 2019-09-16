@@ -31,7 +31,7 @@ public class AnalyzeEntities extends NLPMethodExecutor {
   }
 
   @Override
-  protected MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
+  public MessageOrBuilder executeRequest(LanguageServiceClient language, Document document) {
     AnalyzeEntitiesRequest request = AnalyzeEntitiesRequest.newBuilder()
       .setDocument(document)
       .setEncodingType(encoding)

@@ -24,10 +24,10 @@ import io.cdap.wrangler.api.Directive;
 import io.cdap.wrangler.api.annotations.Categories;
 
 /**
- * Provides the prevailing emotional opinion within a provided text. The API returns two values: The "score" describes
+ * Provides the prevailing emotional opinion within a provided text. The API returns two values: The score describes
  * the emotional leaning of the text from -1 (negative) to +1 (positive), with 0 being neutral.
  *
- * The "magnitude" measures the strength of the emotion.
+ * The magnitude measures the strength of the emotion.
  */
 @Plugin(type = Directive.TYPE)
 @Name(AnalyzeSentiment.NAME)

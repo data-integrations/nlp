@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "spec-version": "1.6"
+  },
+  "display-name" : "NLP Analyze Syntax",
+  "configuration-groups": [
+    {
+      "label": "General",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Source Field",
+          "name": "sourceField"
+        },
+        {
+          "widget-type": "select",
+          "label": "Encoding",
+          "name": "encoding",
+          "widget-attributes": {
+            "values": [
+              "UTF8",
+              "UTF16",
+              "UTF32"
+            ]
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Language Code",
+          "name": "languageCode"
+        },
+        {
+          "widget-type": "radio-group",
+          "label": "Error Handling",
+          "name": "errorHandling",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "stopOnError",
+            "options": [
+              {
+                "id": "stopOnError",
+                "label": "Stop on error"
+              },
+              {
+                "id": "sendToError",
+                "label": "Send to error"
+              },
+              {
+                "id": "skipOnError",
+                "label": "Skip on error"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label" : "Credentials",
+      "properties" : [
+        {
+          "widget-type": "textbox",
+          "label": "Service Account File Path",
+          "name": "serviceFilePath",
+          "widget-attributes" : {
+            "default": "auto-detect"
+          }
+        }
+      ]
+    }
+  ],
+  "emit-errors": true,
+  "outputs": [
+    {
+      "name": "schema",
+      "label": "schema",
+      "widget-type": "non-editable-schema-editor",
+      "schema": {
+      }
+    }
+  ]
+}
