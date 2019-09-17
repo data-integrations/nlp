@@ -6,6 +6,17 @@
 Following is available in this repository. 
 
   * NLP Directives
+  * NLP Transform plugins
+
+# Running integration tests
+
+To run the tests the path to a service account key must be provided.
+The service account key can be found on the Dashboard in the Cloud Platform Console.
+Make sure the account key has permission to access Natural Language API.
+
+```
+mvn clean test -Dservice.account.file=<path-to-service-account-key-json>
+```
 
 # Contact
 
@@ -43,3 +54,4 @@ Cask is a trademark of Cask Data, Inc. All rights reserved.
 
 Apache, Apache HBase, and HBase are trademarks of The Apache Software Foundation. Used with
 permission. No endorsement by The Apache Software Foundation is implied by the use of these marks.
+
