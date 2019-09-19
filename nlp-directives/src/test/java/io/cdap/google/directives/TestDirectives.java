@@ -48,16 +48,14 @@ public class TestDirectives {
   private static final Logger LOG = LoggerFactory.getLogger(TestDirectives.class);
 
   private static final JsonParser PARSER = new JsonParser();
-  private static final String AUTHENTICATION_FILE = System.getProperty(
-    "service.account.file");
+  private static final String AUTHENTICATION_FILE = System.getProperty("service.account.file");
 
   @BeforeClass
   public static void initializeTests() {
     try {
       Assume.assumeNotNull(AUTHENTICATION_FILE);
     } catch (AssumptionViolatedException e) {
-      LOG.warn("ETL tests are skipped. Please find the instructions on enabling it at " +
-                 "README.md");
+      LOG.warn("ETL tests are skipped. Please find the instructions on enabling it at README.md");
       throw e;
     }
   }
