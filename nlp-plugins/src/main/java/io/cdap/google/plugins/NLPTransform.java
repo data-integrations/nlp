@@ -53,13 +53,13 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
                     Schema.Field.of("content",
                                     Schema.of(Schema.Type.STRING)),
                     Schema.Field.of("beginOffset",
-                                    Schema.of(Schema.Type.LONG)),
+                                    Schema.of(Schema.Type.INT)),
                     Schema.Field.of("type",
                                     Schema.nullableOf(Schema.of(Schema.Type.STRING))),
                     Schema.Field.of("magnitude",
-                                    Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))),
+                                    Schema.nullableOf(Schema.of(Schema.Type.FLOAT))),
                     Schema.Field.of("score",
-                                    Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))));
+                                    Schema.nullableOf(Schema.of(Schema.Type.FLOAT))));
 
   protected static final Schema TOKEN =
     Schema.recordOf("tokensRecord",
@@ -87,22 +87,22 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
                     Schema.Field.of("type", Schema.of(Schema.Type.STRING)),
                     Schema.Field.of("metadata", Schema.nullableOf(Schema.mapOf(Schema.of(Schema.Type.STRING),
                                                                                Schema.of(Schema.Type.STRING)))),
-                    Schema.Field.of("salience", Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))),
-                    Schema.Field.of("magnitude", Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))),
-                    Schema.Field.of("score", Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))),
+                    Schema.Field.of("salience", Schema.nullableOf(Schema.of(Schema.Type.FLOAT))),
+                    Schema.Field.of("magnitude", Schema.nullableOf(Schema.of(Schema.Type.FLOAT))),
+                    Schema.Field.of("score", Schema.nullableOf(Schema.of(Schema.Type.FLOAT))),
                     Schema.Field.of("mentions", Schema.arrayOf(MENTION_SCORED)));
 
   protected static final Schema SENTENCE_SCORED =
     Schema.recordOf("sentencesRecord",
                     Schema.Field.of("content", Schema.of(Schema.Type.STRING)),
-                    Schema.Field.of("beginOffset", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
-                    Schema.Field.of("score", Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))),
-                    Schema.Field.of("magnitude", Schema.nullableOf(Schema.of(Schema.Type.DOUBLE))));
+                    Schema.Field.of("beginOffset", Schema.nullableOf(Schema.of(Schema.Type.INT))),
+                    Schema.Field.of("score", Schema.nullableOf(Schema.of(Schema.Type.FLOAT))),
+                    Schema.Field.of("magnitude", Schema.nullableOf(Schema.of(Schema.Type.FLOAT))));
 
   protected static final Schema CATEGORY =
     Schema.recordOf("categoriesRecord",
                     Schema.Field.of("name", Schema.of(Schema.Type.STRING)),
-                    Schema.Field.of("confidence", Schema.of(Schema.Type.DOUBLE)));
+                    Schema.Field.of("confidence", Schema.of(Schema.Type.FLOAT)));
 
   private static final String ERROR_SCHEMA_BODY_PROPERTY = "body";
   private static final Schema STRING_ERROR_SCHEMA = Schema.recordOf("stringError",
