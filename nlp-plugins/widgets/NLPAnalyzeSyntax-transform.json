@@ -88,7 +88,7 @@
               "type": "array",
               "items": {
                 "type": "record",
-                "name": "a15952526fd4b4c7aa02f13e27a225c87",
+                "name": "a15952526fd4b44g56g3e27a225c87",
                 "fields": [
                   {
                     "name": "content",
@@ -96,7 +96,7 @@
                   },
                   {
                     "name": "beginOffset",
-                    "type": "long"
+                    "type": "int"
                   }
                 ]
               }
@@ -108,7 +108,7 @@
               "type": "array",
               "items": {
                 "type": "record",
-                "name": "ad1de771cb815442993a1a3b7a90771cc",
+                "name": "ad1de771cb81gwry5ha1a3b7a90771cc",
                 "fields": [
                   {
                     "name": "content",
@@ -116,7 +116,7 @@
                   },
                   {
                     "name": "beginOffset",
-                    "type": "string"
+                    "type": "int"
                   },
                   {
                     "name": "tag",
@@ -164,6 +164,18 @@
                   },
                   {
                     "name": "voice",
+                    "type": "string"
+                  },
+                  {
+                    "name": "headTokenIndex",
+                    "type": "int"
+                  },
+                  {
+                    "name": "label",
+                    "type": "int"
+                  },
+                  {
+                    "name": "lemma",
                     "type": "string"
                   }
                 ]

@@ -104,7 +104,7 @@
                   },
                   {
                     "name": "beginOffset",
-                    "type": "long"
+                    "type": "int"
                   }
                 ]
               }
@@ -124,7 +124,7 @@
                   },
                   {
                     "name": "beginOffset",
-                    "type": "string"
+                    "type": "int"
                   },
                   {
                     "name": "tag",
@@ -172,6 +172,18 @@
                   },
                   {
                     "name": "voice",
+                    "type": "string"
+                  },
+                  {
+                    "name": "headTokenIndex",
+                    "type": "int"
+                  },
+                  {
+                    "name": "label",
+                    "type": "int"
+                  },
+                  {
+                    "name": "lemma",
                     "type": "string"
                   }
                 ]
@@ -228,7 +240,7 @@
                           },
                           {
                             "name": "beginOffset",
-                            "type": "long"
+                            "type": "int"
                           },
                           {
                             "name": "type",

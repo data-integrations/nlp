@@ -64,7 +64,7 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
   protected static final Schema TOKEN =
     Schema.recordOf("tokensRecord",
                     Schema.Field.of("content", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
-                    Schema.Field.of("beginOffset", Schema.nullableOf(Schema.of(Schema.Type.LONG))),
+                    Schema.Field.of("beginOffset", Schema.nullableOf(Schema.of(Schema.Type.INT))),
                     Schema.Field.of("tag", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
                     Schema.Field.of("aspect", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
                     Schema.Field.of("case", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
@@ -77,8 +77,8 @@ public abstract class NLPTransform extends Transform<StructuredRecord, Structure
                     Schema.Field.of("reciprocity", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
                     Schema.Field.of("tense", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
                     Schema.Field.of("voice", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
-                    Schema.Field.of("headTokenIndex", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
-                    Schema.Field.of("label", Schema.nullableOf(Schema.of(Schema.Type.STRING))),
+                    Schema.Field.of("headTokenIndex", Schema.nullableOf(Schema.of(Schema.Type.INT))),
+                    Schema.Field.of("label", Schema.nullableOf(Schema.of(Schema.Type.INT))),
                     Schema.Field.of("lemma", Schema.nullableOf(Schema.of(Schema.Type.STRING))));
 
   protected static final Schema ENTITY_SCORED =
